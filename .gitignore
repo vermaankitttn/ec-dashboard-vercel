@@ -67,3 +67,6 @@ temp/
 
 # Vercel
 .vercel
+
+# Temporary and old files
+temp_old_files/
