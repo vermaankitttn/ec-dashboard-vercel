@@ -1,0 +1,28 @@
+<svg width="200" height="80" viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="200" height="80" fill="white"/>
+  
+  <!-- Text: SKA -->
+  <text x="10" y="25" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#1e3a8a">SKA</text>
+  
+  <!-- Text: Metro Villé -->
+  <text x="10" y="45" font-family="Georgia, serif" font-size="16" fill="#dc2626">Metro Villé</text>
+  
+  <!-- Graphic Element: Buildings and House -->
+  <!-- Left Building (Blue) -->
+  <rect x="140" y="15" width="12" height="25" fill="#1e3a8a" transform="skewX(-5)"/>
+  
+  <!-- Right Building (Red) -->
+  <rect x="165" y="15" width="12" height="25" fill="#dc2626" transform="skewX(5)"/>
+  
+  <!-- House Base (White) -->
+  <rect x="150" y="35" width="20" height="15" fill="white" stroke="#1e3a8a" stroke-width="1"/>
+  
+  <!-- House Roof (Blue) -->
+  <polygon points="150,35 160,25 170,35" fill="#1e3a8a"/>
+  
+  <!-- Window Details (Small squares) -->
+  <rect x="165" y="27" width="2" height="2" fill="white"/>
+  <rect x="168" y="27" width="2" height="2" fill="white"/>
+</svg>
+
