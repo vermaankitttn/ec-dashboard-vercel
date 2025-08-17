@@ -17,13 +17,6 @@ Before running this app, make sure you have:
 
 - **Node.js** (version 14 or higher)
 - **npm** (comes with Node.js)
-
-## Prerequisites
-
-Before running this app, make sure you have:
-
-- **Node.js** (version 14 or higher)
-- **npm** (comes with Node.js)
 - **Google Sheets API credentials** (`ec-results-credentials.json`)
 
 ## Installation Steps
