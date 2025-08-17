@@ -14,7 +14,6 @@ app.use(cors({
 app.use(express.json());
 
 // Google Sheets configuration
-const CREDENTIALS_FILE = 'ec-results-credentials.json';
 const SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/1wQrOseeikbaJnF3_twiuI-FmSKo9tLTly02eFTCCLGQ/edit?gid=1422280249#gid=1422280249';
 
 // Extract spreadsheet ID from URL
@@ -25,31 +24,39 @@ if (!SPREADSHEET_ID) {
   process.exit(1);
 }
 
-// Load Google Sheets credentials
+// Load Google Sheets credentials from environment variable
 let auth;
 try {
-  const credentials = require(`../${CREDENTIALS_FILE}`);
+  const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
   auth = new google.auth.GoogleAuth({
     credentials,
     scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
   });
 } catch (error) {
-  console.error('Error loading credentials file:', error.message);
-  console.log('Please ensure ec-results-credentials.json is in the root directory');
-  process.exit(1);
+  console.error('Error loading credentials from environment variable:', error.message);
+  console.log('Please ensure GOOGLE_CREDENTIALS environment variable is set');
+  // Don't exit, just log the error
 }
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'OK',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    credentialsLoaded: !!auth
   });
 });
 
 // Google Sheets API endpoint
 app.get('/api/google-sheets-data', async (req, res) => {
   try {
+    if (!auth) {
+      return res.status(500).json({ 
+        error: 'Google credentials not configured',
+        message: 'Please set GOOGLE_CREDENTIALS environment variable'
+      });
+    }
+
     const sheets = google.sheets({ version: 'v4', auth });
     
     // Get the sheet data
@@ -101,7 +108,10 @@ app.get('/api/google-sheets-data', async (req, res) => {
     res.json(transformedData);
   } catch (error) {
     console.error('Error fetching Google Sheets data:', error);
-    res.status(500).json({ error: 'Failed to fetch data from Google Sheets' });
+    res.status(500).json({ 
+      error: 'Failed to fetch data from Google Sheets',
+      details: error.message 
+    });
   }
 });
 
