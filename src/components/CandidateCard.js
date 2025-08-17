@@ -3,7 +3,7 @@ import './CandidateCard.css';
 import { getCandidatePhoto, getInitials } from '../utils/photoMapping';
 
 const CandidateCard = ({ candidate, isTop10 }) => {
-  const { name, flat, totalCount, totalValue, votes, position } = candidate;
+  const { name, totalCount, totalValue, position } = candidate;
   
   // Get candidate photo and initials
   const photoUrl = getCandidatePhoto(name);
@@ -16,12 +16,7 @@ const CandidateCard = ({ candidate, isTop10 }) => {
   const cardBgColor = isTop10 ? "#e8f5e8" : "#fff5e6"; // Light orange-yellow for trailing candidates
   const borderColor = isTop10 ? "#2E8B57" : "#ffa726"; // Orange border for trailing candidates
   
-  // Determine position number color based on position
-  const positionNumberStyle = {
-    background: isTop10 
-      ? "linear-gradient(135deg, #28a745 0%, #20c997 100%)" // Green gradient for leading
-      : "linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%)" // Red gradient for trailing
-  };
+
 
   return (
     <div 
