@@ -62,11 +62,8 @@ temp/
 # Yarn Integrity file
 .yarn-integrity
 
-# dotenv environment variables file
-.env
-
-# Vercel
-.vercel
+# Google Cloud credentials
+ec-results-credentials.json
 
 # Temporary and old files
 temp_old_files/
