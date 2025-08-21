@@ -6,7 +6,7 @@ const DebugInfo = () => {
 
   const checkApi = async () => {
     try {
-      const response = await fetch('/api/health');
+      const response = await fetch('http://localhost:5001/api/google-sheets-data');
       if (response.ok) {
         setApiStatus('✅ Backend API is running');
       } else {

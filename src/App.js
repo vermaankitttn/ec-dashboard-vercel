@@ -48,7 +48,7 @@ function App() {
       console.log('🔄 Fetching data from backend API...');
       
       // Try to fetch from backend API first
-      const response = await fetch('/api/google-sheets-data');
+      const response = await fetch('http://localhost:5001/api/google-sheets-data');
       console.log('📡 Response status:', response.status);
       
       if (response.ok) {

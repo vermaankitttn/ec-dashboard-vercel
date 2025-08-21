@@ -2,9 +2,11 @@ const express = require('express');
 const cors = require('cors');
 const { google } = require('googleapis');
 const path = require('path');
-
 const app = express();
-const PORT = process.env.PORT || 5000;
+
+require('dotenv').config()
+
+const PORT = process.env.PORT || 5001;
 
 // Middleware
 app.use(cors({
@@ -35,8 +37,7 @@ app.use('/candidates', (req, res, next) => {
 }, express.static(path.join(__dirname, 'public/candidates')));
 
 // Google Sheets configuration
-const CREDENTIALS_FILE = 'ec-results-credentials.json';
-const SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/1wQrOseeikbaJnF3_twiuI-FmSKo9tLTly02eFTCCLGQ/edit?gid=1422280249#gid=1422280249';
+const SPREADSHEET_URL = process.env.GOOGLE_SHEETS_URL || 'https://docs.google.com/spreadsheets/d/1wQrOseeikbaJnF3_twiuI-FmSKo9tLTly02eFTCCLGQ/edit?gid=905796284#gid=905796284';
 
 // Extract spreadsheet ID from URL
 const SPREADSHEET_ID = SPREADSHEET_URL.match(/\/d\/([a-zA-Z0-9-_]+)/)?.[1];
@@ -46,17 +47,48 @@ if (!SPREADSHEET_ID) {
   process.exit(1);
 }
 
-// Load Google Sheets credentials
+// Load Google Sheets credentials from environment variables
 let auth;
 try {
-  const credentials = require(`./${CREDENTIALS_FILE}`);
+  // Check if all required environment variables are present
+  const requiredEnvVars = ['GOOGLE_PROJECT_ID', 'GOOGLE_PRIVATE_KEY', 'GOOGLE_CLIENT_EMAIL'];
+  const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+  
+  if (missingVars.length > 0) {
+    throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);
+  }
+
+  // Create credentials object from environment variables
+  const credentials = {
+    type: 'service_account',
+    project_id: process.env.GOOGLE_PROJECT_ID,
+    private_key_id: process.env.GOOGLE_PRIVATE_KEY_ID,
+    private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'), // Handle escaped newlines
+    client_email: process.env.GOOGLE_CLIENT_EMAIL,
+    client_id: process.env.GOOGLE_CLIENT_ID,
+    auth_uri: process.env.GOOGLE_AUTH_URI || 'https://accounts.google.com/o/oauth2/auth',
+    token_uri: process.env.GOOGLE_TOKEN_URI || 'https://oauth2.googleapis.com/token',
+    auth_provider_x509_cert_url: process.env.GOOGLE_AUTH_PROVIDER_CERT_URL || 'https://www.googleapis.com/oauth2/v1/certs',
+    client_x509_cert_url: process.env.GOOGLE_CLIENT_CERT_URL,
+    universe_domain: process.env.GOOGLE_UNIVERSE_DOMAIN || 'googleapis.com'
+  };
+
   auth = new google.auth.GoogleAuth({
     credentials,
     scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
   });
+  
+  console.log('✅ Google Sheets credentials loaded from environment variables');
 } catch (error) {
-  console.error('Error loading credentials file:', error.message);
-  console.log('Please ensure ec-results-credentials.json is in the root directory');
+  console.error('❌ Error loading Google Sheets credentials:', error.message);
+  console.log('Please ensure all required environment variables are set:');
+  console.log('- GOOGLE_PROJECT_ID');
+  console.log('- GOOGLE_PRIVATE_KEY');
+  console.log('- GOOGLE_CLIENT_EMAIL');
+  console.log('Optionally:');
+  console.log('- GOOGLE_PRIVATE_KEY_ID');
+  console.log('- GOOGLE_CLIENT_ID');
+  console.log('- GOOGLE_SHEETS_URL');
   process.exit(1);
 }
 
@@ -68,7 +100,7 @@ app.get('/api/google-sheets-data', async (req, res) => {
     // Get the sheet data
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
-      range: 'Final!A2:K', // Adjust range as needed
+      range: 'Display!A2:K', // Reading from Display sheet
     });
 
     const rows = response.data.values;
@@ -128,6 +160,7 @@ app.get('/api/google-sheets-data', async (req, res) => {
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
+
 
 // Mobile photo test endpoint
 app.get('/api/test-photos', (req, res) => {
